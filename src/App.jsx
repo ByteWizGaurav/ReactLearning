@@ -1,15 +1,16 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import './App.css'
 
 function App() {
   let str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  const [result, setResult] = useState("terimaabhajiyatale");
+  const [result, setResult] = useState("teri maa bhajiya tale");
   const [numAllowed, setNumAllowed] = useState(false);
   const [charAllowed, setCharAllowed] = useState(false);
-  let length = 8;
+  const [length, setLength] = useState(8);
+  const [copyBtn, setCopyBtn] = useState("Copy");
   let password = "";
 
-  function passwordGenerator(){
+  const passwordGenerator = useCallback(() => {
     if(numAllowed) str += "0123456789";
     if(charAllowed) str += "~!@#$%^&*()_-+={}[]:;,.|/<>?";
     
@@ -17,12 +18,19 @@ function App() {
       let charIndex = Math.floor(Math.random() * str.length);
       password += str.charAt(charIndex);
     }
-    console.log(password);
+    // console.log(password);
     setResult(password);
     password = "";
+  }, [numAllowed, charAllowed, length])
+
+  const copyTheData = () => {
+    window.navigator.clipboard.writeText(result);
+    setCopyBtn("Copied");
+    setTimeout(() => {
+      setCopyBtn("Copy");
+    }, 2000);
   }
 
-  passwordGenerator()
 
   return (
     <>
@@ -32,16 +40,17 @@ function App() {
         <div className="generator">
           <p>
           <input type="text" value={result} readOnly/>
-          <button>Copy</button>
+          <button onClick={copyTheData}>{copyBtn}</button>
           </p>
           <p>
-            <input type="range" />
+            <input type="range" value={length} onChange={(e)=> setLength(e.target.value)} min={4} max={20}/>
+            <span>Length: {length}</span>
           </p>
           <div className="btns">
-            <input type="checkbox" /> Number
-            <input type="checkbox" /> Symbols
+            <input type="checkbox" onChange={()=> setNumAllowed((pre) => !pre)}/> Number
+            <input type="checkbox" onChange={()=> setCharAllowed((pre) => !pre)}/> Symbols
           </div>
-          <button onClick={passwordGenerator} style={{background: "green"}}>daal de</button>
+          <button onClick={passwordGenerator} >daal de</button>
         </div>
       </div>
     </>
